@@ -40,8 +40,19 @@ class PatientSimulator(threading.Thread):
 
                 with self.app.app_context():
                     patient = db.session.get(Patient, self.patient_id)
-                    if not patient:
-                        continue
+                    # Check if real hardware ESP32 telemetry was received recently for this patient
+                    latest_real = Telemetry.query.filter_by(
+                        patient_id=self.patient_id,
+                        is_simulated=False
+                    ).order_by(Telemetry.timestamp.desc()).first()
+
+                    if latest_real:
+                        ts = latest_real.timestamp
+                        if ts.tzinfo is None:
+                            ts = ts.replace(tzinfo=timezone.utc)
+                        if (datetime.now(timezone.utc) - ts).total_seconds() < 10.0:
+                            # Real ESP32 hardware telemetry active for this patient. Skip simulated tick.
+                            continue
 
                     # Generate plausible dynamic values based on patient profile + scenario
                     t = self.tick_count * 0.2
