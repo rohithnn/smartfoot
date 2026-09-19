@@ -44,7 +44,7 @@ def seed_database():
     db.session.flush()
 
     sita_baseline_p = {
-        'R_toe': 26.0, 'R_met': 32.0, 'R_arch': 20.0, 'R_heel': 36.0
+        'R_toe': 0.0, 'R_met': 0.0, 'R_arch': 0.0, 'R_heel': 0.0
     }
     patient_sita = Patient(
         user_id=p1_user.id,
@@ -161,8 +161,12 @@ def seed_database():
 
             p_map = dict(patient.baseline_pressure)
             if "Sita" in label:
-                p_map['R_met'] = round(78.0 + (14 - i) * 0.5 + (i % 3) * 1.5, 1)
-                p_map['R_toe'] = round(52.0 + (i % 2) * 2.0, 1)
+                p_map['R_met'] = 0.0
+                p_map['R_toe'] = 0.0
+                p_map['R_arch'] = 0.0
+                p_map['R_heel'] = 0.0
+                tl, tr = 32.2, 32.2
+                asym = 0.0
             elif "Rajesh" in label:
                 p_map['R_heel'] = round(54.0 + (i % 4) * 1.2, 1)
             else:

@@ -25,10 +25,10 @@ class PatientSimulator(threading.Thread):
     def run(self):
         with self.app.app_context():
             patient = db.session.get(Patient, self.patient_id)
-            if not patient:
+            if not patient or patient.patient_code == "PT-8021" or self.patient_id == 1:
+                print(f"[Simulator] Patient 1 (Sita Devi / PT-8021) is set to REAL HARDWARE ONLY. Random simulator disabled for Patient 1.")
                 return
             
-            # Identify patient baseline risk profile
             patient_code = patient.patient_code
             
         print(f"[Simulator] Started background telemetry stream for Patient ID {self.patient_id} ({patient_code})")
@@ -148,6 +148,9 @@ class SimulatorManager:
         with app.app_context():
             patients = Patient.query.all()
             for p in patients:
+                if p.id == 1 or p.patient_code == "PT-8021":
+                    print(f"[Simulator] Patient #{p.id} ({p.patient_code}) is configured for REAL ESP32 HARDWARE ONLY. Simulator skipped.")
+                    continue
                 if p.id not in cls._simulators or not cls._simulators[p.id].is_alive():
                     sim = PatientSimulator(app, p.id)
                     cls._simulators[p.id] = sim
